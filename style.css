@@ -1,0 +1,93 @@
+.category {
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+    color: black;
+    padding: 20px;
+}
+
+
+.align {
+    display: flex;
+    flex-direction: row;
+}
+
+.buttons {
+    font-size: 13px !important;
+    font-family: sans-serif !important;
+	padding: 7.5px 12.5px !important;
+	height: 30px !important;
+    font-size: 12px !important;
+	font-weight: normal !important;
+	letter-spacing: 1px !important;
+	margin-right: 10px !important;
+	border: 1px solid rgb(204, 208, 213) !important;
+	border-radius: 2px !important;
+    background-color: rgb(245, 246, 247) !important;
+	color: rgb(17, 46, 65) !important;
+	text-transform: uppercase !important;
+}
+
+.redButtons {
+    font-size: 13px !important;
+    font-family: sans-serif !important;
+	padding: 7.5px 12.5px !important;
+	height: 30px !important;
+    font-size: 12px !important;
+	font-weight: normal !important;
+	letter-spacing: 1px !important;
+	margin-right: 10px !important;
+	border: 1px solid rgb(204, 208, 213) !important;
+	border-radius: 2px !important;
+    background-color: rgb(241, 31, 16) !important;
+	color: rgb(17, 46, 65) !important;
+	text-transform: uppercase !important;
+}
+
+.greenButtons {
+    font-size: 13px !important;
+    font-family: sans-serif !important;
+	padding: 7.5px 12.5px !important;
+	height: 30px !important;
+    font-size: 12px !important;
+	font-weight: normal !important;
+	letter-spacing: 1px !important;
+	margin-right: 10px !important;
+	border: 1px solid rgb(204, 208, 213) !important;
+	border-radius: 2px !important;
+    background-color: rgb(26, 148, 15) !important;
+	color: rgb(17, 46, 65) !important;
+	text-transform: uppercase !important;
+}
+
+
+.headings {
+    width: 20%;
+    color: green;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.inputs {
+    font-family: sans-serif !important;
+    color: black !important; 
+	display: inline-block !important;
+    background: white;
+	margin: 0 0 10px 0;
+    align-self: center;
+	height: 30px;
+	padding-left: 12.5px;
+	padding-right: 12.5px;
+	padding-top: 7.5px;
+	padding-bottom: 7.5px;
+	width: 100%;
+	box-sizing : border-box;
+	border: 1px solid #252627 !important;
+	font-size: 11px !important;
+	border-radius: 2px !important;
+}
+
+#textDiv {
+    width: 50%;
+    padding: 10px;
+}

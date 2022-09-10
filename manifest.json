@@ -1,0 +1,23 @@
+{
+	"name": "LinkedIn Extractor",
+	"author": "",
+	"version": "1.0",
+	"description": "",
+	"manifest_version": 3,
+	"incognito": "split",
+	"icons": { 
+		"128": "icons/128.png"
+	},
+    "background": {
+		"service_worker": "background.js"
+	},
+	"action": {},
+	"permissions": [
+		"storage",
+        "scripting"
+	],
+    "host_permissions": [
+		"<all_urls>"
+    ]
+}
+
