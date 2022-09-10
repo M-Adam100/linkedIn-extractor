@@ -641,6 +641,8 @@ function parseAndPushEducation(educationObj, db) {
       email: "",
       phone: "",
       location: "",
+      followers: "",
+      connections: "",
       url: "",
       summary: "",
      location: "",
@@ -654,7 +656,6 @@ function parseAndPushEducation(educationObj, db) {
     publications: [],
     skills: [],
     languages: [],
-    interests: [],
     recommendations: [],
     projects: [],
   };
@@ -783,12 +784,7 @@ function parseAndPushEducation(educationObj, db) {
         const { websites, twitterHandles, phoneNumbers, emailAddress } =
           contactInfo.data;
         const partialBasics = {
-          location: output.basics.location,
         };
-        partialBasics.location.address = noNullOrUndef(
-          contactInfo.data.address,
-          output.basics.location.address
-        );
         partialBasics.email = noNullOrUndef(emailAddress, output.basics.email);
         if (phoneNumbers && phoneNumbers.length) {
           partialBasics.phone = noNullOrUndef(phoneNumbers[0].number);
@@ -1031,13 +1027,15 @@ function parseAndPushEducation(educationObj, db) {
                 profileGrabbed = true;
                 resultSummary.profileInfoObj = profile;
                 const localeObject = !dash ? profile.defaultLocale : profile.primaryLocale;
+                console.log(profile);
                 const formattedProfileObj = {
                     name: `${profile.firstName} ${profile.lastName}`,
                     summary: noNullOrUndef(profile.summary),
                     headline: noNullOrUndef(profile.headline),
                     location: {
                         countryCode: localeObject.country
-                    }
+                    },
+                    url: document.location.href
                 };
                 if (profile.address) {
                     formattedProfileObj.location.address = noNullOrUndef(profile.address);
@@ -1060,6 +1058,30 @@ function parseAndPushEducation(educationObj, db) {
                 resultSummary.localeStr = parsedLocaleStr;
             }
         });
+
+       const followers =  Array.from(document.querySelectorAll('span'))
+      .find(el => el.textContent.includes('followers'))?.innerText.split(' ')[0];
+
+      const connections =  Array.from(document.querySelectorAll('span'))
+      .find(el => el.textContent.includes('connections'))?.innerText.split(' ')[0];
+
+      const degreeConnection = document.querySelector('[aria-label*="degree"]')?.textContent.trim().split(' ')[0];
+
+      if (followers) {
+        output.basics.followers = followers;
+      }
+
+      if (connections) {
+        output.basics.connections = connections;
+      }
+
+      if (degreeConnection) {
+        output.basics.degreeConnection = degreeConnection;
+      }
+
+    
+
+        await parseViaInternalApiContactInfo();
 
         let languages = [];
         const languageElements = db.getValuesByKey(_liTypeMappings.languages.tocKeys);

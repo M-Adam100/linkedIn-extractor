@@ -13,6 +13,7 @@
 	},
 	"action": {},
 	"permissions": [
+		"tabs",
 		"storage",
         "scripting"
 	],

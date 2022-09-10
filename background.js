@@ -14,7 +14,7 @@ chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
-        files: ['scripts/stack-script.js']
+        files: ['scripts/linkedin-extractor.js']
       },
       () => { console.log("Executed Script") });
   }
