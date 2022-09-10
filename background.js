@@ -1,20 +1,28 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension Installed");
+  chrome.storage.local.set({
+    scrape: false
+  });
 });
 
 
 chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
-  if (tab.url.includes('linkedin.com/in') && changeInfo.status == 'complete') {
-    chrome.scripting.insertCSS(
-      {
-        target: { tabId: tab.id },
-        files: ["style.css"]
-      },
-      () => { console.log('CSS Injected') });
+  const { scrape } = await chrome.storage.local.get(['scrape']);
+  console.log(scrape);
+  if (tab.url.includes('linkedin.com/in') && changeInfo.status == 'complete' && scrape) {
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
         files: ['scripts/linkedin-extractor.js']
+      },
+      () => { console.log("Executed Script") });
+  } else if (
+    tab.url.includes('linkedin.com/feed') && changeInfo.status == 'complete'
+  ) {
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tab.id },
+        files: ['scripts/start.js']
       },
       () => { console.log("Executed Script") });
   }

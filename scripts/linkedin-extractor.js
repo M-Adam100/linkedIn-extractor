@@ -1,6 +1,19 @@
 console.log("Running LinkedIn Extractor Script");
 
 (async () => {
+  const API_KEY = 123;
+  const postResponse = async (json) => {
+    const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
+      method: "post",
+      body: JSON.stringify({
+        parsedData: json,
+      }),
+      mode: "cors",
+    });
+
+    return res.json();
+  };
+
   function noNullOrUndef(value, optDefaultVal) {
     const defaultVal = optDefaultVal || "";
     return typeof value === "undefined" || value === null ? defaultVal : value;
@@ -10,7 +23,7 @@ console.log("Running LinkedIn Extractor Script");
     const copied = JSON.parse(JSON.stringify(inputObj));
     removeKeys.forEach((k) => delete copied[k]);
     return copied;
-}
+  }
 
   const maxDaysOfMonth = {
     1: 31,
@@ -24,208 +37,262 @@ console.log("Running LinkedIn Extractor Script");
     9: 30,
     10: 31,
     11: 30,
-    12: 31
-};
+    12: 31,
+  };
 
- const _liSchemaKeys = {
-  profile: '*profile',
-  certificates: '*certificationView',
-  education: '*educationView',
-  workPositions: '*positionView',
-  workPositionGroups: '*positionGroupView',
-  skills: '*skillView',
-  projects: '*projectView',
-  attachments: '*summaryTreasuryMedias',
-  volunteerWork: '*volunteerExperienceView',
-  awards: '*honorView',
-  publications: '*publicationView'
-};
+  const _liSchemaKeys = {
+    profile: "*profile",
+    certificates: "*certificationView",
+    education: "*educationView",
+    workPositions: "*positionView",
+    workPositionGroups: "*positionGroupView",
+    skills: "*skillView",
+    projects: "*projectView",
+    attachments: "*summaryTreasuryMedias",
+    volunteerWork: "*volunteerExperienceView",
+    awards: "*honorView",
+    publications: "*publicationView",
+  };
 
   const _liTypeMappings = {
     profile: {
-        // There is no tocKey for profile in dash FullProfileWithEntries,
-        // due to how entry-point is configured
-        tocKeys: ['*profile'],
-        types: [
-            // regular profileView
-            'com.linkedin.voyager.identity.profile.Profile',
-            // dash FullProfile
-            'com.linkedin.voyager.dash.identity.profile.Profile'
-        ],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities']
+      // There is no tocKey for profile in dash FullProfileWithEntries,
+      // due to how entry-point is configured
+      tocKeys: ["*profile"],
+      types: [
+        // regular profileView
+        "com.linkedin.voyager.identity.profile.Profile",
+        // dash FullProfile
+        "com.linkedin.voyager.dash.identity.profile.Profile",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities",
+      ],
     },
     languages: {
-        tocKeys: ['*languageView', '*profileLanguages'],
-        types: ['com.linkedin.voyager.identity.profile.Language']
+      tocKeys: ["*languageView", "*profileLanguages"],
+      types: ["com.linkedin.voyager.identity.profile.Language"],
     },
     certificates: {
-        tocKeys: ['*certificationView', '*profileCertifications'],
-        types: ['com.linkedin.voyager.dash.identity.profile.Certification'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileCertification']
+      tocKeys: ["*certificationView", "*profileCertifications"],
+      types: ["com.linkedin.voyager.dash.identity.profile.Certification"],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileCertification",
+      ],
     },
     education: {
-        tocKeys: ['*educationView', '*profileEducations'],
-        types: [
-            'com.linkedin.voyager.identity.profile.Education',
-            // Dash
-            'com.linkedin.voyager.dash.identity.profile.Education'
-        ],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileEducation']
+      tocKeys: ["*educationView", "*profileEducations"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Education",
+        // Dash
+        "com.linkedin.voyager.dash.identity.profile.Education",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileEducation",
+      ],
     },
     courses: {
-        tocKeys: ['*courseView', '*profileCourses'],
-        types: ['com.linkedin.voyager.identity.profile.Course', 'com.linkedin.voyager.dash.identity.profile.Course'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileCourse']
+      tocKeys: ["*courseView", "*profileCourses"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Course",
+        "com.linkedin.voyager.dash.identity.profile.Course",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileCourse",
+      ],
     },
     // Individual work entries (not aggregate (workgroup) with date range)
     workPositions: {
-        tocKeys: ['*positionView'],
-        types: ['com.linkedin.voyager.identity.profile.Position', 'com.linkedin.voyager.dash.identity.profile.Position'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfilePosition']
+      tocKeys: ["*positionView"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Position",
+        "com.linkedin.voyager.dash.identity.profile.Position",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfilePosition",
+      ],
     },
     // Work entry *groups*, aggregated by employer clumping
     workPositionGroups: {
-        tocKeys: ['*positionGroupView', '*profilePositionGroups'],
-        types: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfilePositionGroupsInjection'],
-        recipes: [
-            'com.linkedin.voyager.identity.profile.PositionGroupView',
-            'com.linkedin.voyager.dash.deco.identity.profile.FullProfilePositionGroup',
-            // Generic collection response
-            'com.linkedin.restli.common.CollectionResponse'
-        ]
+      tocKeys: ["*positionGroupView", "*profilePositionGroups"],
+      types: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfilePositionGroupsInjection",
+      ],
+      recipes: [
+        "com.linkedin.voyager.identity.profile.PositionGroupView",
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfilePositionGroup",
+        // Generic collection response
+        "com.linkedin.restli.common.CollectionResponse",
+      ],
     },
     skills: {
-        tocKeys: ['*skillView', '*profileSkills'],
-        types: ['com.linkedin.voyager.identity.profile.Skill', 'com.linkedin.voyager.dash.identity.profile.Skill'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileSkill']
+      tocKeys: ["*skillView", "*profileSkills"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Skill",
+        "com.linkedin.voyager.dash.identity.profile.Skill",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileSkill",
+      ],
     },
     projects: {
-        tocKeys: ['*projectView', '*profileProjects'],
-        types: ['com.linkedin.voyager.identity.profile.Project', 'com.linkedin.voyager.dash.identity.profile.Project'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileProject']
+      tocKeys: ["*projectView", "*profileProjects"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Project",
+        "com.linkedin.voyager.dash.identity.profile.Project",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileProject",
+      ],
     },
     attachments: {
-        tocKeys: ['*summaryTreasuryMedias', '*profileTreasuryMediaPosition'],
-        types: ['com.linkedin.voyager.identity.profile.Certification', 'com.linkedin.voyager.dash.identity.profile.treasury.TreasuryMedia'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileTreasuryMedia']
+      tocKeys: ["*summaryTreasuryMedias", "*profileTreasuryMediaPosition"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Certification",
+        "com.linkedin.voyager.dash.identity.profile.treasury.TreasuryMedia",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileTreasuryMedia",
+      ],
     },
     volunteerWork: {
-        tocKeys: ['*volunteerExperienceView', '*profileVolunteerExperiences'],
-        types: ['com.linkedin.voyager.dash.identity.profile.VolunteerExperience'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileVolunteerExperience']
+      tocKeys: ["*volunteerExperienceView", "*profileVolunteerExperiences"],
+      types: ["com.linkedin.voyager.dash.identity.profile.VolunteerExperience"],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileVolunteerExperience",
+      ],
     },
     awards: {
-        tocKeys: ['*honorView', '*profileHonors'],
-        types: ['com.linkedin.voyager.identity.profile.Honor', 'com.linkedin.voyager.dash.identity.profile.Honor'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfileHonor']
+      tocKeys: ["*honorView", "*profileHonors"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Honor",
+        "com.linkedin.voyager.dash.identity.profile.Honor",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfileHonor",
+      ],
     },
     publications: {
-        tocKeys: ['*publicationView', '*profilePublications'],
-        types: ['com.linkedin.voyager.identity.profile.Publication', 'com.linkedin.voyager.dash.identity.profile.Publication'],
-        recipes: ['com.linkedin.voyager.dash.deco.identity.profile.FullProfilePublication']
-    }
-};
+      tocKeys: ["*publicationView", "*profilePublications"],
+      types: [
+        "com.linkedin.voyager.identity.profile.Publication",
+        "com.linkedin.voyager.dash.identity.profile.Publication",
+      ],
+      recipes: [
+        "com.linkedin.voyager.dash.deco.identity.profile.FullProfilePublication",
+      ],
+    },
+  };
 
- async function getProfileUrnId(allowFetch = true) {
+  async function getProfileUrnId(allowFetch = true) {
     const profileViewUrnPatt = /urn:li:fs_profileView:(.+)$/i;
 
     const endpoint = _voyagerEndpoints.fullProfileView;
     // Make a new API call to get ID - be wary of recursive calls
     if (allowFetch && !endpoint.includes(`{profileUrnId}`)) {
-        const fullProfileView = await voyagerFetch(endpoint);
-        const profileDb = buildDbFromLiSchema(fullProfileView);
-        profileUrnId = profileDb.tableOfContents['entityUrn'].match(profileViewUrnPatt)[1];
-        return profileUrnId;
+      const fullProfileView = await voyagerFetch(endpoint);
+      const profileDb = buildDbFromLiSchema(fullProfileView);
+      profileUrnId =
+        profileDb.tableOfContents["entityUrn"].match(profileViewUrnPatt)[1];
+      return profileUrnId;
     }
-  console.warn('Could not scrape profileUrnId from cache, but fetch is disallowed. Might be using a stale ID!');
+    console.warn(
+      "Could not scrape profileUrnId from cache, but fetch is disallowed. Might be using a stale ID!"
+    );
 
     // Try to find in DOM, as last resort
     const urnPatt = /miniprofiles\/([A-Za-z0-9-_]+)/g;
     const matches = document.body.innerHTML.match(urnPatt);
     if (matches && matches.length > 1) {
-        // eslint-disable-next-line prettier/prettier
-        // prettier-ignore
-        profileUrnId = (urnPatt.exec(matches[matches.length - 1]))[1];
-        return profileUrnId;
+      // eslint-disable-next-line prettier/prettier
+      // prettier-ignore
+      profileUrnId = (urnPatt.exec(matches[matches.length - 1]))[1];
+      return profileUrnId;
     }
 
     return profileUrnId;
-};
-
-async function parseViaInternalApiVolunteer() {
-  try {
-      const volunteerResponses = await this.voyagerFetchAutoPaginate(_voyagerEndpoints.dash.profileVolunteerExperiences);
-      volunteerResponses.forEach((response) => {
-          const db = buildDbFromLiSchema(response);
-          db.getElementsByType(_liTypeMappings.volunteerWork.types).forEach((volunteerEntry) => {
-              parseAndPushVolunteerExperience(volunteerEntry, db);
-          });
-      });
-  } catch (e) {
-      this.debugConsole.warn('Error parsing using internal API (Voyager) - Volunteer Entries', e);
   }
-};
 
-function parseAndPushVolunteerExperience(volunteerEntryObj, db) {
-  const parsedVolunteerWork = {
+  async function parseViaInternalApiVolunteer() {
+    try {
+      const volunteerResponses = await this.voyagerFetchAutoPaginate(
+        _voyagerEndpoints.dash.profileVolunteerExperiences
+      );
+      volunteerResponses.forEach((response) => {
+        const db = buildDbFromLiSchema(response);
+        db.getElementsByType(_liTypeMappings.volunteerWork.types).forEach(
+          (volunteerEntry) => {
+            parseAndPushVolunteerExperience(volunteerEntry, db);
+          }
+        );
+      });
+    } catch (e) {
+      this.debugConsole.warn(
+        "Error parsing using internal API (Voyager) - Volunteer Entries",
+        e
+      );
+    }
+  }
+
+  function parseAndPushVolunteerExperience(volunteerEntryObj, db) {
+    const parsedVolunteerWork = {
       organization: volunteerEntryObj.companyName,
       position: volunteerEntryObj.role,
-      website: companyLiPageFromCompanyUrn(volunteerEntryObj['companyUrn'], db),
-      startDate: '',
-      endDate: '',
+      website: companyLiPageFromCompanyUrn(volunteerEntryObj["companyUrn"], db),
+      startDate: "",
+      endDate: "",
       summary: volunteerEntryObj.description,
-      highlights: []
-  };
-  parseAndAttachResumeDates(parsedVolunteerWork, volunteerEntryObj);
+      highlights: [],
+    };
+    parseAndAttachResumeDates(parsedVolunteerWork, volunteerEntryObj);
 
-  // Push to final json
-  output.volunteer.push({
-      ...lazyCopy(parsedVolunteerWork, ['website']),
-      url: parsedVolunteerWork.website
-  });
-}
+    // Push to final json
+    output.volunteer.push({
+      ...lazyCopy(parsedVolunteerWork, ["website"]),
+      url: parsedVolunteerWork.website,
+    });
+  }
 
-function parseAndPushEducation(educationObj, db) {
-  const edu = educationObj;
-  const parsedEdu = {
+  function parseAndPushEducation(educationObj, db) {
+    const edu = educationObj;
+    const parsedEdu = {
       institution: noNullOrUndef(edu.schoolName),
       area: noNullOrUndef(edu.fieldOfStudy),
       studyType: noNullOrUndef(edu.degreeName),
-      startDate: '',
-      endDate: '',
+      startDate: "",
+      endDate: "",
       gpa: noNullOrUndef(edu.grade),
-      courses: []
-  };
-  parseAndAttachResumeDates(parsedEdu, edu);
-  if (Array.isArray(edu.courses)) {
+      courses: [],
+    };
+    parseAndAttachResumeDates(parsedEdu, edu);
+    if (Array.isArray(edu.courses)) {
       edu.courses.forEach((courseKey) => {
-          const courseInfo = db.entitiesByUrn[courseKey];
-          if (courseInfo) {
-              parsedEdu.courses.push(`${courseInfo.number} - ${courseInfo.name}`);
-          } else {
-              console.debugConsole.warn('could not find course:', courseKey);
-          }
+        const courseInfo = db.entitiesByUrn[courseKey];
+        if (courseInfo) {
+          parsedEdu.courses.push(`${courseInfo.number} - ${courseInfo.name}`);
+        } else {
+          console.debugConsole.warn("could not find course:", courseKey);
+        }
       });
-  } else {
-     
+    } else {
       db.getElementsByType(_liTypeMappings.courses.types).forEach((c) => {
-          if (c.occupationUnion && c.occupationUnion.profileEducation) {
-              if (c.occupationUnion.profileEducation === edu.entityUrn) {
-                  parsedEdu.courses.push(`${c.number} - ${c.name}`);
-              }
+        if (c.occupationUnion && c.occupationUnion.profileEducation) {
+          if (c.occupationUnion.profileEducation === edu.entityUrn) {
+            parsedEdu.courses.push(`${c.number} - ${c.name}`);
           }
+        }
       });
-  }
-  output.education.push({
+    }
+    output.education.push({
       institution: noNullOrUndef(edu.schoolName),
       area: noNullOrUndef(edu.fieldOfStudy),
       studyType: noNullOrUndef(edu.degreeName),
       startDate: parsedEdu.startDate,
       endDate: parsedEdu.endDate,
       score: noNullOrUndef(edu.grade),
-      courses: parsedEdu.courses
-  });
-}
+      courses: parsedEdu.courses,
+    });
+  }
 
   function parseAndAttachResumeDates(resumeObj, liEntity) {
     // Time period can either come as `timePeriod` or `dateRange` prop
@@ -253,11 +320,11 @@ function parseAndPushEducation(educationObj, db) {
 
   function zeroLeftPad(n) {
     if (n < 10) {
-        return `0${n}`;
+      return `0${n}`;
     }
 
     return n.toString();
-}
+  }
 
   function getMonthPadded(m) {
     if (!m) return `12`;
@@ -293,13 +360,14 @@ function parseAndPushEducation(educationObj, db) {
 
   function getWorkPositions(db) {
     return getElementsThroughGroup(db, {
-      multiRootKey: '*profilePositionGroups',
-      singleRootVoyagerTypeString: 'com.linkedin.voyager.dash.identity.profile.PositionGroup',
-      elementsInGroupCollectionResponseKey: '*profilePositionInPositionGroup',
-      fallbackElementGroupViewKey: '*positionGroupView',
-      fallbackElementGroupUrnArrayKey: '*positions',
+      multiRootKey: "*profilePositionGroups",
+      singleRootVoyagerTypeString:
+        "com.linkedin.voyager.dash.identity.profile.PositionGroup",
+      elementsInGroupCollectionResponseKey: "*profilePositionInPositionGroup",
+      fallbackElementGroupViewKey: "*positionGroupView",
+      fallbackElementGroupUrnArrayKey: "*positions",
       fallbackTocKeys: _liTypeMappings.workPositions.tocKeys,
-      fallbackTypeStrings: _liTypeMappings.workPositions.types
+      fallbackTypeStrings: _liTypeMappings.workPositions.types,
     });
   }
 
@@ -645,7 +713,7 @@ function parseAndPushEducation(educationObj, db) {
       connections: "",
       url: "",
       summary: "",
-     location: "",
+      location: "",
       profiles: [],
     },
     work: [],
@@ -725,7 +793,7 @@ function parseAndPushEducation(educationObj, db) {
         return true;
       }
     } catch (e) {
-     console.warn(
+      console.warn(
         "Error parsing using internal API (Voyager) - FullSkills",
         e
       );
@@ -741,7 +809,6 @@ function parseAndPushEducation(educationObj, db) {
           Array.isArray(basicAboutMe.included) &&
           basicAboutMe.included.length > 0
         ) {
-          console.log({basicAboutMe})
           const data = basicAboutMe.included[0];
           const partialBasics = {
             name: `${data.firstName} ${data.LastName}`,
@@ -765,17 +832,21 @@ function parseAndPushEducation(educationObj, db) {
 
   async function parseViaInternalApiEducation() {
     try {
-        const fullDashProfileObj = await voyagerFetch(_voyagerEndpoints.dash.fullProfile.path);
-        const db = buildDbFromLiSchema(fullDashProfileObj);
-        // Response is missing ToC, so just look up by namespace / schema
-        const eduEntries = db.getElementsByType('com.linkedin.voyager.dash.identity.profile.Education');
-        eduEntries.forEach((edu) => {
-            parseAndPushEducation(edu, db, this);
-        });
+      const fullDashProfileObj = await voyagerFetch(
+        _voyagerEndpoints.dash.fullProfile.path
+      );
+      const db = buildDbFromLiSchema(fullDashProfileObj);
+      // Response is missing ToC, so just look up by namespace / schema
+      const eduEntries = db.getElementsByType(
+        "com.linkedin.voyager.dash.identity.profile.Education"
+      );
+      eduEntries.forEach((edu) => {
+        parseAndPushEducation(edu, db, this);
+      });
     } catch (e) {
-       console.warn('Error parsing using internal API (Voyager) - Education', e);
+      console.warn("Error parsing using internal API (Voyager) - Education", e);
     }
-};
+  }
 
   async function parseViaInternalApiContactInfo() {
     try {
@@ -783,8 +854,7 @@ function parseAndPushEducation(educationObj, db) {
       if (contactInfo && typeof contactInfo.data === "object") {
         const { websites, twitterHandles, phoneNumbers, emailAddress } =
           contactInfo.data;
-        const partialBasics = {
-        };
+        const partialBasics = {};
         partialBasics.email = noNullOrUndef(emailAddress, output.basics.email);
         if (phoneNumbers && phoneNumbers.length) {
           partialBasics.phone = noNullOrUndef(phoneNumbers[0].number);
@@ -816,7 +886,7 @@ function parseAndPushEducation(educationObj, db) {
         return true;
       }
     } catch (e) {
-     console.warn(
+      console.warn(
         "Error parsing using internal API (Voyager) - Contact Info",
         e
       );
@@ -831,13 +901,11 @@ function parseAndPushEducation(educationObj, db) {
       );
       if (advancedAboutMe && typeof advancedAboutMe.data === "object") {
         const { data } = advancedAboutMe;
-        console.log({advancedAboutMe})
         const partialBasics = {
           name: `${data.firstName} ${data.lastName}`,
           headline: data.headline,
           summary: data.summary,
           location: data.geoLocationName,
-
         };
         output.basics = {
           ...output.basics,
@@ -854,28 +922,32 @@ function parseAndPushEducation(educationObj, db) {
     return false;
   }
 
-
   async function parseViaInternalApiRecommendations() {
     try {
-        const recommendationJson = await voyagerFetch(`${_voyagerEndpoints.recommendations}?q=received&recommendationStatuses=List(VISIBLE)`);
-        const db = buildDbFromLiSchema(recommendationJson);
-        db.getElementKeys().forEach((key) => {
-            const elem = db.entitiesByUrn[key];
-            if (elem && 'recommendationText' in elem) {
-                // Need to do a secondary lookup to get the name of the person who gave the recommendation
-                const recommenderElem = db.entitiesByUrn[elem['*recommender']];
-                const formattedReference = {
-                    name: `${recommenderElem.firstName} ${recommenderElem.lastName}`,
-                    reference: elem.recommendationText
-                };
-                output.recommendations.push(formattedReference);
-            }
-        });
+      const recommendationJson = await voyagerFetch(
+        `${_voyagerEndpoints.recommendations}?q=received&recommendationStatuses=List(VISIBLE)`
+      );
+      const db = buildDbFromLiSchema(recommendationJson);
+      db.getElementKeys().forEach((key) => {
+        const elem = db.entitiesByUrn[key];
+        if (elem && "recommendationText" in elem) {
+          // Need to do a secondary lookup to get the name of the person who gave the recommendation
+          const recommenderElem = db.entitiesByUrn[elem["*recommender"]];
+          const formattedReference = {
+            name: `${recommenderElem.firstName} ${recommenderElem.lastName}`,
+            reference: elem.recommendationText,
+          };
+          output.recommendations.push(formattedReference);
+        }
+      });
     } catch (e) {
-       console.warn('Error parsing using internal API (Voyager) - Recommendations', e);
+      console.warn(
+        "Error parsing using internal API (Voyager) - Recommendations",
+        e
+      );
     }
     return false;
-};
+  }
   async function parseViaInternalApiWork() {
     try {
       const workResponses = await voyagerFetchAutoPaginate(
@@ -888,10 +960,7 @@ function parseAndPushEducation(educationObj, db) {
         });
       });
     } catch (e) {
-     console.warn(
-        "Error parsing using internal API (Voyager) - Work",
-        e
-      );
+      console.warn("Error parsing using internal API (Voyager) - Work", e);
     }
   }
 
@@ -973,99 +1042,118 @@ function parseAndPushEducation(educationObj, db) {
     return endpoint;
   }
 
-  async function parseProfileSchemaJSON(liResponse, endpoint = 'profileView') {
-    const dash = endpoint === 'dashFullProfileWithEntities';
+  async function parseProfileSchemaJSON(liResponse, endpoint = "profileView") {
+    const dash = endpoint === "dashFullProfileWithEntities";
     let foundGithub = false;
     const foundPortfolio = false;
     const resultSummary = {
-        liResponse,
-        profileSrc: endpoint,
-        pageUrl: null,
-        parseSuccess: false,
-        sections: {
-            basics: 'fail',
-            languages: 'fail',
-            attachments: 'fail',
-            education: 'fail',
-            work: 'fail',
-            volunteer: 'fail',
-            certificates: 'fail',
-            skills: 'fail',
-            projects: 'fail',
-            awards: 'fail',
-            publications: 'fail'
-        }
+      liResponse,
+      profileSrc: endpoint,
+      pageUrl: null,
+      parseSuccess: false,
+      sections: {
+        basics: "fail",
+        languages: "fail",
+        attachments: "fail",
+        education: "fail",
+        work: "fail",
+        volunteer: "fail",
+        certificates: "fail",
+        skills: "fail",
+        projects: "fail",
+        awards: "fail",
+        publications: "fail",
+      },
     };
     try {
-        // Build db object
-        let db = buildDbFromLiSchema(liResponse);
+      // Build db object
+      let db = buildDbFromLiSchema(liResponse);
 
-        if (dash && !liResponse.data.hoisted) {
-            const profileObj = db.getElementByUrn(db.tableOfContents['*elements'][0]);
-            if (!profileObj || !profileObj.firstName) {
-                throw new Error('Could not extract nested profile object from Dash endpoint');
-            }
-            const hoistedRes = {
-                data: {
-                    ...liResponse.data,
-                    ...profileObj,
-                    // Set flag for future
-                    hoisted: true
-                },
-                included: liResponse.included
-            };
-            resultSummary.liResponse = hoistedRes;
-            db = buildDbFromLiSchema(hoistedRes);
+      if (dash && !liResponse.data.hoisted) {
+        const profileObj = db.getElementByUrn(
+          db.tableOfContents["*elements"][0]
+        );
+        if (!profileObj || !profileObj.firstName) {
+          throw new Error(
+            "Could not extract nested profile object from Dash endpoint"
+          );
         }
+        const hoistedRes = {
+          data: {
+            ...liResponse.data,
+            ...profileObj,
+            // Set flag for future
+            hoisted: true,
+          },
+          included: liResponse.included,
+        };
+        resultSummary.liResponse = hoistedRes;
+        db = buildDbFromLiSchema(hoistedRes);
+      }
 
-        // Parse basics / profile
-        let profileGrabbed = false;
-        const profileObjs = dash ? [db.getElementByUrn(db.tableOfContents['*elements'][0])] : db.getValuesByKey(_liSchemaKeys.profile);
-        profileObjs.forEach((profile) => {
-            // There should only be one
-            if (!profileGrabbed) {
-                profileGrabbed = true;
-                resultSummary.profileInfoObj = profile;
-                const localeObject = !dash ? profile.defaultLocale : profile.primaryLocale;
-                console.log(profile);
-                const formattedProfileObj = {
-                    name: `${profile.firstName} ${profile.lastName}`,
-                    summary: noNullOrUndef(profile.summary),
-                    headline: noNullOrUndef(profile.headline),
-                    location: {
-                        countryCode: localeObject.country
-                    },
-                    url: document.location.href
-                };
-                if (profile.address) {
-                    formattedProfileObj.location.address = noNullOrUndef(profile.address);
-                } else if (profile.locationName) {
-                    formattedProfileObj.location.address = noNullOrUndef(profile.locationName);
-                }
-                output.basics = {
-                    ...output.basics,
-                    ...formattedProfileObj
-                };
-               
-                const formatttedLang = {
-                    language: localeObject.language.toLowerCase() === 'en' ? 'English' : localeObject.language,
-                    fluency: 'Native Speaker'
-                };
-                output.languages.push(formatttedLang);
-                resultSummary.sections.basics = 'success';
+      // Parse basics / profile
+      let profileGrabbed = false;
+      const profileObjs = dash
+        ? [db.getElementByUrn(db.tableOfContents["*elements"][0])]
+        : db.getValuesByKey(_liSchemaKeys.profile);
+      profileObjs.forEach((profile) => {
+        // There should only be one
+        if (!profileGrabbed) {
+          profileGrabbed = true;
+          resultSummary.profileInfoObj = profile;
+          const localeObject = !dash
+            ? profile.defaultLocale
+            : profile.primaryLocale;
+          const formattedProfileObj = {
+            name: `${profile.firstName} ${profile.lastName}`,
+            summary: noNullOrUndef(profile.summary),
+            headline: noNullOrUndef(profile.headline),
+            location: {
+              countryCode: localeObject.country,
+            },
+            url: document.location.href,
+          };
+          if (profile.address) {
+            formattedProfileObj.location.address = noNullOrUndef(
+              profile.address
+            );
+          } else if (profile.locationName) {
+            formattedProfileObj.location.address = noNullOrUndef(
+              profile.locationName
+            );
+          }
+          output.basics = {
+            ...output.basics,
+            ...formattedProfileObj,
+          };
 
-                const parsedLocaleStr = `${localeObject.language}_${localeObject.country}`;
-                resultSummary.localeStr = parsedLocaleStr;
-            }
-        });
+          const formatttedLang = {
+            language:
+              localeObject.language.toLowerCase() === "en"
+                ? "English"
+                : localeObject.language,
+            fluency: "Native Speaker",
+          };
+          output.languages.push(formatttedLang);
+          resultSummary.sections.basics = "success";
 
-       const followers =  Array.from(document.querySelectorAll('span'))
-      .find(el => el.textContent.includes('followers'))?.innerText.split(' ')[0];
+          const parsedLocaleStr = `${localeObject.language}_${localeObject.country}`;
+          resultSummary.localeStr = parsedLocaleStr;
+        }
+      });
 
-      const connections =  Array.from(document.querySelectorAll('span'))
-      .find(el => el.textContent.includes('connections'))?.innerText.split(' ')[0];
+      const followers = Array.from(document.querySelectorAll("span"))
+        .find((el) => el.textContent.includes("followers"))
+        ?.innerText.split(" ")[0];
 
-      const degreeConnection = document.querySelector('[aria-label*="degree"]')?.textContent.trim().split(' ')[0];
+      const connections = Array.from(document.querySelectorAll("span"))
+        .find((el) => el.textContent.includes("connections"))
+        ?.innerText.split(" ")[0];
+
+      const degreeConnection = document
+        .querySelector('[aria-label*="degree"]')
+        ?.textContent.trim()
+        .split(" ")[0];
 
       if (followers) {
         output.basics.followers = followers;
@@ -1079,208 +1167,262 @@ function parseAndPushEducation(educationObj, db) {
         output.basics.degreeConnection = degreeConnection;
       }
 
-    
+      await parseViaInternalApiContactInfo();
 
-        await parseViaInternalApiContactInfo();
-
-        let languages = [];
-        const languageElements = db.getValuesByKey(_liTypeMappings.languages.tocKeys);
-        languageElements.forEach((languageMeta) => {
-            const liProficiencyEnumToJsonResumeStr = {
-                NATIVE_OR_BILINGUAL: 'Native Speaker',
-                FULL_PROFESSIONAL: 'Full Professional',
-                EXPERT: 'Expert',
-                ADVANCED: 'Advanced',
-                PROFESSIONAL_WORKING: 'Professional Working',
-                LIMITED_WORKING: 'Limited Working',
-                INTERMEDIATE: 'intermediate',
-                BEGINNER: 'Beginner',
-                ELEMENTARY: 'Elementary'
-            };
-            const liProficiency = typeof languageMeta.proficiency === 'string' ? languageMeta.proficiency.toUpperCase() : undefined;
-            if (liProficiency && liProficiency in liProficiencyEnumToJsonResumeStr) {
-                languages.push({
-                    fluency: liProficiencyEnumToJsonResumeStr[liProficiency],
-                    language: languageMeta.name
-                });
-            }
-        });
-        languages = [
-            ...output.languages.filter((e) => {
-                return !languages.find((l) => l.language === e.language);
-            }),
-            ...languages
-        ];
-        output.languages = languages;
-        resultSummary.sections.languages = languages.length ? 'success' : 'empty';
-
-        // Parse attachments / portfolio links
-        const attachments = db.getValuesByKey(_liTypeMappings.attachments.tocKeys);
-        attachments.forEach((attachment) => {
-            let captured = false;
-            const url = attachment.data.url || attachment.data.Url;
-            if (attachment.providerName === 'GitHub' || /github\.com/gim.test(url)) {
-                const usernameMatch = /github\.com\/([^\/\?]+)[^\/]+$/gim.exec(url);
-                if (usernameMatch && !foundGithub) {
-                    foundGithub = true;
-                    captured = true;
-                    const formattedProfile = {
-                        network: 'GitHub',
-                        username: usernameMatch[1],
-                        url
-                    };
-                    output.basics.profiles.push(formattedProfile);
-                }
-            }
-            // Since most people put potfolio as first link, guess that it will be
-            if (!captured && !foundPortfolio) {
-                captured = true;
-                output.basics.website = url;
-                output.basics.url = url;
-            }
-            // Finally, put in projects if not yet categorized
-            if (!captured) {
-                captured = true;
-                output.projects = output.projects || [];
-                output.projects.push({
-                    name: attachment.title || attachment.mediaTitle,
-                    startDate: '',
-                    endDate: '',
-                    description: attachment.description || attachment.mediaDescription,
-                    url
-                });
-            }
-        });
-        resultSummary.sections.attachments = attachments.length ? 'success' : 'empty';
-
-        // Parse education
-
-        await parseViaInternalApiEducation();
-        resultSummary.sections.education = output.education.length ? 'success' : 'empty';
-
-        let allWorkCanBeCaptured = true;
-        const views = [_liTypeMappings.workPositionGroups.tocKeys, _liTypeMappings.workPositions.tocKeys].map(db.getValueByKey);
-        for (let x = 0; x < views.length; x++) {
-            const view = views[x];
-            if (view && view.paging) {
-                const { paging } = view;
-                if (paging.start + paging.count >= paging.total !== true) {
-                    allWorkCanBeCaptured = false;
-                    break;
-                }
-            }
+      let languages = [];
+      const languageElements = db.getValuesByKey(
+        _liTypeMappings.languages.tocKeys
+      );
+      languageElements.forEach((languageMeta) => {
+        const liProficiencyEnumToJsonResumeStr = {
+          NATIVE_OR_BILINGUAL: "Native Speaker",
+          FULL_PROFESSIONAL: "Full Professional",
+          EXPERT: "Expert",
+          ADVANCED: "Advanced",
+          PROFESSIONAL_WORKING: "Professional Working",
+          LIMITED_WORKING: "Limited Working",
+          INTERMEDIATE: "intermediate",
+          BEGINNER: "Beginner",
+          ELEMENTARY: "Elementary",
+        };
+        const liProficiency =
+          typeof languageMeta.proficiency === "string"
+            ? languageMeta.proficiency.toUpperCase()
+            : undefined;
+        if (
+          liProficiency &&
+          liProficiency in liProficiencyEnumToJsonResumeStr
+        ) {
+          languages.push({
+            fluency: liProficiencyEnumToJsonResumeStr[liProficiency],
+            language: languageMeta.name,
+          });
         }
-        if (allWorkCanBeCaptured) {
-            getWorkPositions(db).forEach((position) => {
-                parseAndPushPosition(position, db);
-            });
-            console.log(`All work positions captured directly from profile result.`);
-            resultSummary.sections.work = 'success';
-        } else {
-            console.warn(`Work positions in profile are truncated.`);
-            await parseViaInternalApiWork();
+      });
+      languages = [
+        ...output.languages.filter((e) => {
+          return !languages.find((l) => l.language === e.language);
+        }),
+        ...languages,
+      ];
+      output.languages = languages;
+      resultSummary.sections.languages = languages.length ? "success" : "empty";
+
+      // Parse attachments / portfolio links
+      const attachments = db.getValuesByKey(
+        _liTypeMappings.attachments.tocKeys
+      );
+      attachments.forEach((attachment) => {
+        let captured = false;
+        const url = attachment.data.url || attachment.data.Url;
+        if (
+          attachment.providerName === "GitHub" ||
+          /github\.com/gim.test(url)
+        ) {
+          const usernameMatch = /github\.com\/([^\/\?]+)[^\/]+$/gim.exec(url);
+          if (usernameMatch && !foundGithub) {
+            foundGithub = true;
+            captured = true;
+            const formattedProfile = {
+              network: "GitHub",
+              username: usernameMatch[1],
+              url,
+            };
+            output.basics.profiles.push(formattedProfile);
+          }
         }
-
-        let allVolunteerCanBeCaptured = true;
-        const volunteerView = db.getValueByKey([..._liTypeMappings.volunteerWork.tocKeys]);
-        if (volunteerView.paging) {
-            const { paging } = volunteerView;
-            allVolunteerCanBeCaptured = paging.start + paging.count >= paging.total;
+        // Since most people put potfolio as first link, guess that it will be
+        if (!captured && !foundPortfolio) {
+          captured = true;
+          output.basics.website = url;
+          output.basics.url = url;
         }
-        if (allVolunteerCanBeCaptured) {
-            const volunteerEntries = db.getValuesByKey(_liTypeMappings.volunteerWork.tocKeys);
-            volunteerEntries.forEach((volunteering) => {
-                parseAndPushVolunteerExperience(volunteering, db);
-            });
-            resultSummary.sections.volunteer = volunteerEntries.length ? 'success' : 'empty';
-        } else {
-           await parseViaInternalApiVolunteer();
+        // Finally, put in projects if not yet categorized
+        if (!captured) {
+          captured = true;
+          output.projects = output.projects || [];
+          output.projects.push({
+            name: attachment.title || attachment.mediaTitle,
+            startDate: "",
+            endDate: "",
+            description: attachment.description || attachment.mediaDescription,
+            url,
+          });
         }
+      });
+      resultSummary.sections.attachments = attachments.length
+        ? "success"
+        : "empty";
 
-        const certificates = [];
-        db.getValuesByKey(_liTypeMappings.certificates.tocKeys).forEach((cert) => {
-            const certObj = {
-                name: cert.name,
-                issuer: cert.authority
-            };
-            parseAndAttachResumeDates(certObj, cert);
-            if (typeof cert.url === 'string' && cert.url) {
-                certObj.url = cert.url;
-            }
-            certificates.push(certObj);
+      // Parse education
+
+      await parseViaInternalApiEducation();
+      resultSummary.sections.education = output.education.length
+        ? "success"
+        : "empty";
+
+      let allWorkCanBeCaptured = true;
+      const views = [
+        _liTypeMappings.workPositionGroups.tocKeys,
+        _liTypeMappings.workPositions.tocKeys,
+      ].map(db.getValueByKey);
+      for (let x = 0; x < views.length; x++) {
+        const view = views[x];
+        if (view && view.paging) {
+          const { paging } = view;
+          if (paging.start + paging.count >= paging.total !== true) {
+            allWorkCanBeCaptured = false;
+            break;
+          }
+        }
+      }
+      if (allWorkCanBeCaptured) {
+        getWorkPositions(db).forEach((position) => {
+          parseAndPushPosition(position, db);
         });
-        resultSummary.sections.certificates = certificates.length ? 'success' : 'empty';
-        output.certificates = certificates;
+        console.log(
+          `All work positions captured directly from profile result.`
+        );
+        resultSummary.sections.work = "success";
+      } else {
+        console.warn(`Work positions in profile are truncated.`);
+        await parseViaInternalApiWork();
+      }
 
-        // Parse skills
-        await parseViaInternalApiFullSkills();
-        resultSummary.sections.skills = output.skills.length ? 'success' : 'empty';
-
-        // Parse projects
-        output.projects = output.projects || [];
-        db.getValuesByKey(_liTypeMappings.projects.tocKeys).forEach((project) => {
-            const parsedProject = {
-                name: project.title,
-                startDate: '',
-                summary: project.description,
-                url: project.url
-            };
-            parseAndAttachResumeDates(parsedProject, project);
-            output.projects.push(parsedProject);
+      let allVolunteerCanBeCaptured = true;
+      const volunteerView = db.getValueByKey([
+        ..._liTypeMappings.volunteerWork.tocKeys,
+      ]);
+      if (volunteerView.paging) {
+        const { paging } = volunteerView;
+        allVolunteerCanBeCaptured = paging.start + paging.count >= paging.total;
+      }
+      if (allVolunteerCanBeCaptured) {
+        const volunteerEntries = db.getValuesByKey(
+          _liTypeMappings.volunteerWork.tocKeys
+        );
+        volunteerEntries.forEach((volunteering) => {
+          parseAndPushVolunteerExperience(volunteering, db);
         });
-        resultSummary.sections.projects = output.projects.length ? 'success' : 'empty';
+        resultSummary.sections.volunteer = volunteerEntries.length
+          ? "success"
+          : "empty";
+      } else {
+        await parseViaInternalApiVolunteer();
+      }
 
-        // Parse awards
-        const awardEntries = db.getValuesByKey(_liTypeMappings.awards.tocKeys);
-        awardEntries.forEach((award) => {
-            const parsedAward = {
-                title: award.title,
-                date: '',
-                awarder: award.issuer,
-                summary: noNullOrUndef(award.description)
-            };
-            // profileView vs dash key
-            const issueDateObject = award.issueDate || award.issuedOn;
-            if (issueDateObject && typeof issueDateObject === 'object') {
-                parsedAward.date = parseDate(issueDateObject);
-            }
-            output.awards.push(parsedAward);
+      const certificates = [];
+      db.getValuesByKey(_liTypeMappings.certificates.tocKeys).forEach(
+        (cert) => {
+          const certObj = {
+            name: cert.name,
+            issuer: cert.authority,
+          };
+          parseAndAttachResumeDates(certObj, cert);
+          if (typeof cert.url === "string" && cert.url) {
+            certObj.url = cert.url;
+          }
+          certificates.push(certObj);
+        }
+      );
+      resultSummary.sections.certificates = certificates.length
+        ? "success"
+        : "empty";
+      output.certificates = certificates;
+
+      // Parse skills
+      await parseViaInternalApiFullSkills();
+      resultSummary.sections.skills = output.skills.length
+        ? "success"
+        : "empty";
+
+      // Parse projects
+      output.projects = output.projects || [];
+      db.getValuesByKey(_liTypeMappings.projects.tocKeys).forEach((project) => {
+        const parsedProject = {
+          name: project.title,
+          startDate: "",
+          summary: project.description,
+          url: project.url,
+        };
+        parseAndAttachResumeDates(parsedProject, project);
+        output.projects.push(parsedProject);
+      });
+      resultSummary.sections.projects = output.projects.length
+        ? "success"
+        : "empty";
+
+      // Parse awards
+      const awardEntries = db.getValuesByKey(_liTypeMappings.awards.tocKeys);
+      awardEntries.forEach((award) => {
+        const parsedAward = {
+          title: award.title,
+          date: "",
+          awarder: award.issuer,
+          summary: noNullOrUndef(award.description),
+        };
+        // profileView vs dash key
+        const issueDateObject = award.issueDate || award.issuedOn;
+        if (issueDateObject && typeof issueDateObject === "object") {
+          parsedAward.date = parseDate(issueDateObject);
+        }
+        output.awards.push(parsedAward);
+      });
+      resultSummary.sections.awards = awardEntries.length ? "success" : "empty";
+
+      // Parse publications
+      const publicationEntries = db.getValuesByKey(
+        _liTypeMappings.publications.tocKeys
+      );
+      publicationEntries.forEach((publication) => {
+        const parsedPublication = {
+          name: publication.name,
+          publisher: publication.publisher,
+          releaseDate: "",
+          website: noNullOrUndef(publication.url),
+          summary: noNullOrUndef(publication.description),
+        };
+        // profileView vs dash key
+        const publicationDateObj = publication.date || publication.publishedOn;
+        if (
+          publicationDateObj &&
+          typeof publicationDateObj === "object" &&
+          typeof publicationDateObj.year !== "undefined"
+        ) {
+          parsedPublication.releaseDate = parseDate(publicationDateObj);
+        }
+        output.publications.push({
+          ...lazyCopy(parsedPublication, ["website"]),
+          url: parsedPublication.website,
         });
-        resultSummary.sections.awards = awardEntries.length ? 'success' : 'empty';
+      });
+      resultSummary.sections.publications = publicationEntries.length
+        ? "success"
+        : "empty";
 
-        // Parse publications
-        const publicationEntries = db.getValuesByKey(_liTypeMappings.publications.tocKeys);
-        publicationEntries.forEach((publication) => {
-            const parsedPublication = {
-                name: publication.name,
-                publisher: publication.publisher,
-                releaseDate: '',
-                website: noNullOrUndef(publication.url),
-                summary: noNullOrUndef(publication.description)
-            };
-            // profileView vs dash key
-            const publicationDateObj = publication.date || publication.publishedOn;
-            if (publicationDateObj && typeof publicationDateObj === 'object' && typeof publicationDateObj.year !== 'undefined') {
-                parsedPublication.releaseDate = parseDate(publicationDateObj);
-            }
-            output.publications.push({
-                ...lazyCopy(parsedPublication, ['website']),
-                url: parsedPublication.website
-            });
-        });
-        resultSummary.sections.publications = publicationEntries.length ? 'success' : 'empty';
-
-        parseSuccess = true;
-        resultSummary.parseSuccess = true;
-        resultSummary.pageUrl = getUrlWithoutQuery();
+      parseSuccess = true;
+      resultSummary.parseSuccess = true;
+      resultSummary.pageUrl = getUrlWithoutQuery();
     } catch (e) {
-        resultSummary.parseSuccess = false;
+      resultSummary.parseSuccess = false;
     }
     return resultSummary;
-}
+  }
 
   const profileResponse = await voyagerFetch(_voyagerEndpoints.fullProfileView);
   await parseProfileSchemaJSON(profileResponse);
-
+  
   console.log(output);
+
+  const response = await postResponse(output);
+
+  if (response.next_url) {
+    window.open(response.next_url, "_self");
+  } else {
+    console.log("No More Next Urls!");
+    chrome.storage.local.set({ 
+      scrape: false
+    })
+  }
+
 })();
