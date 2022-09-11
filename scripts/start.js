@@ -4,7 +4,12 @@
       scrape: true,
     });
 
-    const API_KEY = 123;
+    const API_KEY = document.querySelector('a[href*="/in"').href.replaceAll('/', '').split('.comin').pop();
+
+    chrome.storage.local.set({
+        apiKey: API_KEY,
+      });
+
     const getResponse = async () => {
       const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
         method: "get",

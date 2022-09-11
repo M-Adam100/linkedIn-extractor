@@ -1,7 +1,8 @@
 console.log("Running LinkedIn Extractor Script");
 
 (async () => {
-  const API_KEY = 123;
+  const { apiKey: API_KEY } = await chrome.storage.local.get(['apiKey']);
+  
   const postResponse = async (json) => {
     const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
       method: "post",
