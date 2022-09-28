@@ -1,8 +1,9 @@
 console.log("Running LinkedIn Extractor Script");
 
 (async () => {
-  const { apiKey: API_KEY } = await chrome.storage.local.get(['apiKey']);
-  
+  const { apiKey: API_KEY, currentResponse } = await chrome.storage.local.get(['apiKey', 'currentResponse']);
+
+  console.log(currentResponse);
   const postResponse = async (json) => {
     const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
       method: "post",
@@ -14,6 +15,92 @@ console.log("Running LinkedIn Extractor Script");
 
     return res.json();
   };
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms*1000));
+}
+
+  const sendMessage = async (content) => { 
+
+    console.log("Sending Message!");
+    return new Promise((resolve, reject) => {
+      const eleExists = document.querySelector('div.pvs-profile-actions').querySelector('a[href*="messaging"]');
+      if (eleExists) {
+        eleExists.click();
+
+        let sendMessageInterval;
+        const terminateTimeout = setTimeout(() => {
+          console.log("Can't Send Message!");
+          clearInterval(sendMessageInterval);
+          resolve(true);
+        }, 5000);
+
+        sendMessageInterval = setInterval(async () => { 
+          const para = document.querySelector('[role="textbox"]')?.querySelector('p');
+          if (para) {
+            clearTimeout(terminateTimeout);
+            clearInterval(sendMessageInterval);
+            para.innerText = content.message;
+            document.querySelector('input[name="subject"]').value = content.subject;
+            document.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
+            document.querySelector('[role="textbox"]').dispatchEvent(new InputEvent('input', {bubbles: true}));
+            await sleep(2);
+            document.querySelector('button[type="submit"]').click();
+            resolve(true);
+          }
+        }, 1000)
+       
+  
+      }
+    })
+    
+
+  }
+
+  const connect = async () => { 
+
+    return new Promise((resolve, reject) => {
+      const eleExists = document.querySelector('[type="connect"]');
+      if (eleExists) {
+        eleExists.click();
+
+        let connectInterval;
+        const terminateTimeout = setTimeout(() => {
+          console.log("Can't Connnect!");
+          clearInterval(sendMessageInterval);
+          resolve(true);
+        }, 5000);
+
+        connectInterval = setInterval(async () => { 
+          const button = document.querySelector('button[aria-label="Other"]');
+          if (button) {
+            clearTimeout(terminateTimeout);
+            clearInterval(connectInterval);
+            button.click();
+            await sleep(2);
+            document.querySelector('button[aria-label="Connect"]').click();
+
+            await sleep(2);
+            
+            document.querySelector('button[aria-label="Add a note"]').click();
+
+            await sleep(2);
+
+            // This message should be passed from the API as well i think, only getting yes!
+            document.querySelector('textarea').value = "Hi, I would like to connect with you :)";
+            document.querySelector('textarea').dispatchEvent(new InputEvent('input', {bubbles: true}));
+
+            document.querySelector('button[aria-label="Send now"]').click();
+            resolve(true);
+          }
+        }, 1000)
+       
+  
+      }
+    })
+    
+
+  }
 
   function noNullOrUndef(value, optDefaultVal) {
     const defaultVal = optDefaultVal || "";
@@ -1415,10 +1502,20 @@ console.log("Running LinkedIn Extractor Script");
   
   console.log(output);
 
+  if (currentResponse?.message.message) {
+    await sendMessage(currentResponse?.message);
+    console.log("Message Process Completed!");
+  }
+
+  if (currentResponse?.connect == "yes") {
+    await connect();
+    console.log("Connection Process Completed!");
+  }
+
   const response = await postResponse(output);
 
   if (response.next_url) {
-    window.open(response.next_url, "_self");
+    //window.open(response.next_url, "_self");
   } else {
     console.log("No More Next Urls!");
     chrome.storage.local.set({ 

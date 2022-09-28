@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension Installed");
   chrome.storage.local.set({
-    scrape: false
+    scrape: true
   });
 });
 
