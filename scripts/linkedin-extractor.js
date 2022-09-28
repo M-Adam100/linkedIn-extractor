@@ -90,6 +90,7 @@ console.log("Running LinkedIn Extractor Script");
             document.querySelector('textarea').value = "Hi, I would like to connect with you :)";
             document.querySelector('textarea').dispatchEvent(new InputEvent('input', {bubbles: true}));
 
+            await sleep(2);
             document.querySelector('button[aria-label="Send now"]').click();
             resolve(true);
           }
@@ -1512,9 +1513,25 @@ console.log("Running LinkedIn Extractor Script");
     console.log("Connection Process Completed!");
   }
 
+  if (currentResponse?.like == "yes") {
+    chrome.runtime.sendMessage({
+      message: 'LIKE_POSTS',
+      url: window.location.href + `recent-activity/shares/`
+    })
+  }
+
   const response = await postResponse(output);
 
+  //Un comment when test API is not being used
+
+  // chrome.storage.local.set({
+  //   currentResponse: response,
+  // });
+
   if (response.next_url) {
+
+    // Commented for now
+
     //window.open(response.next_url, "_self");
   } else {
     console.log("No More Next Urls!");
