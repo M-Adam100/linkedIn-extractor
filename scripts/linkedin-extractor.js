@@ -28,7 +28,9 @@ console.log("Running LinkedIn Extractor Script");
       if (eleExists) {
         eleExists.click();
 
-        let sendMessageInterval;
+        const alreadyConnection = document.querySelector('[type="remove-connection"]');
+        if (alreadyConnection) {
+          let sendMessageInterval;
         const terminateTimeout = setTimeout(() => {
           console.log("Can't Send Message!");
           clearInterval(sendMessageInterval);
@@ -41,14 +43,37 @@ console.log("Running LinkedIn Extractor Script");
             clearTimeout(terminateTimeout);
             clearInterval(sendMessageInterval);
             para.innerText = content.message;
-            document.querySelector('input[name="subject"]').value = content.subject;
-            document.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
             document.querySelector('[role="textbox"]').dispatchEvent(new InputEvent('input', {bubbles: true}));
             await sleep(2);
             document.querySelector('button[type="submit"]').click();
             resolve(true);
           }
         }, 1000)
+        } else {
+          let sendMessageInterval;
+          const terminateTimeout = setTimeout(() => {
+            console.log("Can't Send Message!");
+            clearInterval(sendMessageInterval);
+            resolve(true);
+          }, 5000);
+  
+          sendMessageInterval = setInterval(async () => { 
+            const para = document.querySelector('[role="textbox"]')?.querySelector('p');
+            if (para) {
+              clearTimeout(terminateTimeout);
+              clearInterval(sendMessageInterval);
+              para.innerText = content.message;
+              document.querySelector('input[name="subject"]').value = content.subject;
+              document.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
+              document.querySelector('[role="textbox"]').dispatchEvent(new InputEvent('input', {bubbles: true}));
+              await sleep(2);
+              document.querySelector('button[type="submit"]').click();
+              resolve(true);
+            }
+          }, 1000)
+        }
+
+        
        
   
       }
