@@ -63,8 +63,10 @@ console.log("Running LinkedIn Extractor Script");
               clearTimeout(terminateTimeout);
               clearInterval(sendMessageInterval);
               para.innerText = content.message;
-              document.querySelector('input[name="subject"]').value = content.subject;
-              document.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
+              if ( document.querySelector('input[name="subject"]')) {
+                document.querySelector('input[name="subject"]').value = content.subject;
+                document.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
+              }
               document.querySelector('[role="textbox"]').dispatchEvent(new InputEvent('input', {bubbles: true}));
               await sleep(2);
               document.querySelector('button[type="submit"]').click();
