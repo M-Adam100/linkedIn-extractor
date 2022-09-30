@@ -38,7 +38,7 @@ console.log("Running LinkedIn Extractor Script");
         }, 5000);
 
         sendMessageInterval = setInterval(async () => { 
-          const para = document.querySelector('[role="textbox"]')?.querySelector('p');
+          const para = document.querySelector('.msg-overlay-conversation-bubble--is-active').querySelector('[role="textbox"]')?.querySelector('p');
           if (para) {
             clearTimeout(terminateTimeout);
             clearInterval(sendMessageInterval);
