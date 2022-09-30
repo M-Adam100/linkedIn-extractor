@@ -86,13 +86,15 @@ console.log("Running LinkedIn Extractor Script");
 
     return new Promise((resolve, reject) => {
       const eleExists = document.querySelector('[type="connect"]');
-      if (eleExists) {
+      const alreadyConnection = document.querySelector('[type="remove-connection"]');
+
+      if (eleExists && !alreadyConnection) {
         eleExists.click();
 
         let connectInterval;
         const terminateTimeout = setTimeout(() => {
           console.log("Can't Connnect!");
-          clearInterval(sendMessageInterval);
+          clearInterval(connectInterval);
           resolve(true);
         }, 5000);
 
@@ -122,6 +124,9 @@ console.log("Running LinkedIn Extractor Script");
         }, 1000)
        
   
+      } else {
+        console.log("Already a connection OR Page not loaded!");
+        resolve(true);
       }
     })
     
