@@ -50,14 +50,14 @@ chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
 });
 
 
-chrome.runtime.onMessage.addListener((request, sender) => {
-  console.log(request);
-  chrome.tabs.query({ currentWindow: true }, function(tabs) { 
-    const activeTab = tabs.find(tab => tab.active);
-    const nonActiveTab = tabs.find(tab => !tab.active);
+// chrome.runtime.onMessage.addListener((request, sender) => {
+//   console.log(request);
+//   chrome.tabs.query({ currentWindow: true }, function(tabs) { 
+//     const activeTab = tabs.find(tab => tab.active);
+//     const nonActiveTab = tabs.find(tab => !tab.active);
 
-    chrome.tabs.update(nonActiveTab.id, {selected: true})
-  } );
+//     chrome.tabs.update(nonActiveTab.id, {selected: true})
+//   } );
 
-})
+// })
 
