@@ -38,14 +38,15 @@ console.log("Running LinkedIn Extractor Script");
         }, 5000);
 
         sendMessageInterval = setInterval(async () => { 
-          const para = document.querySelector('.msg-overlay-conversation-bubble--is-active').querySelector('[role="textbox"]')?.querySelector('p');
+          const mainDiv = document.querySelector('.msg-overlay-conversation-bubble--is-active');
+          const para = mainDiv.querySelector('[role="textbox"]')?.querySelector('p');
           if (para) {
             clearTimeout(terminateTimeout);
             clearInterval(sendMessageInterval);
             para.innerText = content.message;
-            document.querySelector('[role="textbox"]').dispatchEvent(new InputEvent('input', {bubbles: true}));
+            para.dispatchEvent(new InputEvent('input', {bubbles: true}));
             await sleep(2);
-            document.querySelector('button[type="submit"]').click();
+            mainDiv.querySelector('button[type="submit"]').click();
             resolve(true);
           }
         }, 1000)
@@ -58,18 +59,19 @@ console.log("Running LinkedIn Extractor Script");
           }, 5000);
   
           sendMessageInterval = setInterval(async () => { 
-            const para = document.querySelector('[role="textbox"]')?.querySelector('p');
+            const mainDiv = document.querySelector('.msg-overlay-conversation-bubble--is-active');
+            const para = mainDiv.querySelector('[role="textbox"]')?.querySelector('p');
             if (para) {
               clearTimeout(terminateTimeout);
               clearInterval(sendMessageInterval);
               para.innerText = content.message;
-              if ( document.querySelector('input[name="subject"]')) {
-                document.querySelector('input[name="subject"]').value = content.subject;
-                document.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
+              if ( mainDiv.querySelector('input[name="subject"]')) {
+                mainDiv.querySelector('input[name="subject"]').value = content.subject;
+                mainDiv.querySelector('input[name="subject"]').dispatchEvent(new InputEvent('change', {bubbles: true}))
               }
-              document.querySelector('[role="textbox"]').dispatchEvent(new InputEvent('input', {bubbles: true}));
+              para.dispatchEvent(new InputEvent('input', {bubbles: true}));
               await sleep(2);
-              document.querySelector('button[type="submit"]').click();
+              mainDiv.querySelector('button[type="submit"]').click();
               resolve(true);
             }
           }, 1000)
