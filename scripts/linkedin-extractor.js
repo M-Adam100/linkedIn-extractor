@@ -86,7 +86,7 @@ console.log("Running LinkedIn Extractor Script");
 
   }
 
-  const connect = async () => { 
+  const connect = async (connectNote) => { 
 
     return new Promise((resolve, reject) => {
       const eleExists = document.querySelector('[type="connect"]');
@@ -118,7 +118,7 @@ console.log("Running LinkedIn Extractor Script");
             await sleep(2);
 
             // This message should be passed from the API as well i think, only getting yes!
-            document.querySelector('textarea').value = "Hi, I would like to connect with you :)";
+            document.querySelector('textarea').value = connectNote;
             document.querySelector('textarea').dispatchEvent(new InputEvent('input', {bubbles: true}));
 
             await sleep(2);
@@ -1543,7 +1543,7 @@ console.log("Running LinkedIn Extractor Script");
   }
 
   if (currentResponse?.connect == "yes") {
-    await connect();
+    await connect(currentResponse?.connect_note);
     console.log("Connection Process Completed!");
   }
 

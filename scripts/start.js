@@ -19,19 +19,19 @@
         });
         
         const getResponse = async () => {
-          // const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
-          //   method: "get",
-          //   mode: "cors",
-          // });
+          const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
+            method: "get",
+            mode: "cors",
+          });
     
           // Testing with Test URL
-          const res = await fetch(
-            `https://test-api.trado.fi/?apikey=123&test_mode=yes`,
-            {
-              method: "get",
-              mode: "cors",
-            }
-          );
+          // const res = await fetch(
+          //   `https://test-api.trado.fi/?apikey=123&test_mode=yes`,
+          //   {
+          //     method: "get",
+          //     mode: "cors",
+          //   }
+          // );
     
           return res.json();
         };
