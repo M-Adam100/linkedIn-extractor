@@ -1556,17 +1556,17 @@ console.log("Running LinkedIn Extractor Script");
 
   const response = await postResponse(output);
 
-  //Un comment when test API is not being used
+  // Un comment when test API is not being used
 
-  // chrome.storage.local.set({
-  //   currentResponse: response,
-  // });
+  chrome.storage.local.set({
+    currentResponse: response,
+  });
 
   if (response.next_url) {
 
     // Commented for now
 
-    //window.open(response.next_url, "_self");
+    window.open(response.next_url, "_self");
   } else {
     console.log("No More Next Urls!");
     chrome.storage.local.set({ 

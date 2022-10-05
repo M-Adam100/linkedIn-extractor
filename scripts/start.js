@@ -19,7 +19,7 @@
         });
         
         const getResponse = async () => {
-          const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}`, {
+          const res = await fetch(`https://test-api.trado.fi/?apikey=${API_KEY}&test_mode=yes`, {
             method: "get",
             mode: "cors",
           });
