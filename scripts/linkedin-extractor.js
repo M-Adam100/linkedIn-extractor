@@ -109,7 +109,7 @@ console.log("Running LinkedIn Extractor Script");
             clearInterval(connectInterval);
             button.click();
             await sleep(2);
-            document.querySelector('button[aria-label="Connect"]').click();
+            document.querySelector('button[aria-label="Connect"]')?.click();
 
             await sleep(2);
             
@@ -118,7 +118,20 @@ console.log("Running LinkedIn Extractor Script");
             await sleep(2);
 
             // This message should be passed from the API as well i think, only getting yes!
-            document.querySelector('textarea').value = connectNote;
+            document.querySelector('textarea').value = connectNote || "Lets Connect :)";
+            document.querySelector('textarea').dispatchEvent(new InputEvent('input', {bubbles: true}));
+
+            await sleep(2);
+            document.querySelector('button[aria-label="Send now"]').click();
+            resolve(true);
+          } else {
+            
+            document.querySelector('button[aria-label="Add a note"]').click();
+
+            await sleep(2);
+
+            // This message should be passed from the API as well i think, only getting yes!
+            document.querySelector('textarea').value = connectNote || "Lets Connect :)";
             document.querySelector('textarea').dispatchEvent(new InputEvent('input', {bubbles: true}));
 
             await sleep(2);
