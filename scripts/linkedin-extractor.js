@@ -1550,7 +1550,7 @@ console.log("Running LinkedIn Extractor Script");
   
   console.log(output);
 
-  if (currentResponse?.message.message) {
+  if (currentResponse?.message?.message) {
     await sendMessage(currentResponse?.message);
     console.log("Message Process Completed!");
   }
