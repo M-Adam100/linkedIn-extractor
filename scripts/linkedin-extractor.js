@@ -35,7 +35,7 @@ console.log("Running LinkedIn Extractor Script");
           console.log("Can't Send Message!");
           clearInterval(sendMessageInterval);
           resolve(true);
-        }, 5000);
+        }, 10000);
 
         sendMessageInterval = setInterval(async () => { 
           const mainDiv = document.querySelector('.msg-overlay-conversation-bubble--is-active');
@@ -100,7 +100,7 @@ console.log("Running LinkedIn Extractor Script");
           console.log("Can't Connnect!");
           clearInterval(connectInterval);
           resolve(true);
-        }, 5000);
+        }, 10000);
 
         connectInterval = setInterval(async () => { 
           const button = document.querySelector('button[aria-label="Other"]');
